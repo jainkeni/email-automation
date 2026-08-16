@@ -1,0 +1,57 @@
+import axios from 'axios';
+
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
+
+const api = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+});
+
+// Add auth token to every request
+api.interceptors.request.use((config) => {
+    const token = localStorage.getItem('adminToken');
+    if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+});
+
+// Handle 401 responses (expired/invalid token)
+api.interceptors.response.use(
+    (response) => response,
+    (error) => {
+        if (error.response?.status === 401) {
+            localStorage.removeItem('adminToken');
+            localStorage.removeItem('adminData');
+            window.location.href = '/login';
+        }
+        return Promise.reject(error);
+    }
+);
+
+// Auth API
+export const authAPI = {
+    login: (email, password) => api.post('/auth/login', { email, password }),
+    register: (name, email, password) => api.post('/auth/register', { name, email, password }),
+    getMe: () => api.get('/auth/me'),
+};
+
+// Requests API
+export const requestsAPI = {
+    getAll: (params) => api.get('/requests', { params }),
+    getStats: () => api.get('/requests/stats'),
+    getById: (id) => api.get(`/requests/${id}`),
+    approve: (id, replyText) => api.put(`/requests/${id}/approve`, { replyText }),
+    reject: (id, reason) => api.put(`/requests/${id}/reject`, { reason }),
+    regenerate: (id) => api.post(`/requests/${id}/regenerate`),
+};
+
+// Settings API
+export const settingsAPI = {
+    get: () => api.get('/settings'),
+    update: (data) => api.put('/settings', data),
+};
+
+export default api;
