@@ -40,7 +40,8 @@ const RequestDetailPage = () => {
             setRequest(res.data.request);
             toast.success('Reply sent successfully!');
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to send reply');
+            const errData = error.response?.data;
+            toast.error(errData?.error || errData?.message || 'Failed to send reply');
         } finally {
             setIsApproving(false);
         }
@@ -53,7 +54,8 @@ const RequestDetailPage = () => {
             setRequest(res.data.request);
             toast.success('Request rejected');
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to reject request');
+            const errData = error.response?.data;
+            toast.error(errData?.error || errData?.message || 'Failed to reject request');
         } finally {
             setIsRejecting(false);
         }
@@ -67,7 +69,8 @@ const RequestDetailPage = () => {
             toast.success('AI draft regenerated!');
             return res.data.request.aiDraftReply;
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to regenerate draft');
+            const errData = error.response?.data;
+            toast.error(errData?.error || errData?.message || 'Failed to regenerate draft');
         } finally {
             setIsRegenerating(false);
         }

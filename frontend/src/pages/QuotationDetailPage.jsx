@@ -81,7 +81,8 @@ const QuotationDetailPage = () => {
             toast.success('Quotation Approved');
             fetchData();
         } catch (error) {
-            toast.error('Failed to approve quotation');
+            const errData = error.response?.data;
+            toast.error(errData?.error || errData?.message || 'Failed to approve quotation');
         }
     };
 
@@ -92,7 +93,8 @@ const QuotationDetailPage = () => {
             toast.success('Quotation sent to customer');
             fetchData();
         } catch (error) {
-            toast.error('Failed to send quotation');
+            const errData = error.response?.data;
+            toast.error(errData?.error || errData?.message || 'Failed to send quotation');
         } finally {
             setSending(false);
         }

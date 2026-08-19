@@ -500,7 +500,10 @@ router.post('/:id/send', async (req, res) => {
         res.json({ message: 'Quotation sent successfully.', recipient: recipientEmail });
     } catch (error) {
         console.error('Error sending quotation:', error);
-        res.status(500).json({ message: 'Failed to send quotation.' });
+        res.status(500).json({
+            message: 'Failed to send quotation.',
+            error: error.message
+        });
     }
 });
 
