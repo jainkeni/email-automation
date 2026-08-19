@@ -8,6 +8,10 @@ import DashboardPage from './pages/DashboardPage';
 import RequestsPage from './pages/RequestsPage';
 import RequestDetailPage from './pages/RequestDetailPage';
 import SettingsPage from './pages/SettingsPage';
+import ProductsPage from './pages/ProductsPage';
+import CustomersPage from './pages/CustomersPage';
+import QuotationsPage from './pages/QuotationsPage';
+import QuotationDetailPage from './pages/QuotationDetailPage';
 import { requestsAPI } from './services/api';
 
 const ProtectedRoute = ({ children }) => {
@@ -65,6 +69,10 @@ const AppLayout = () => {
           <Route path="/" element={<DashboardPage />} />
           <Route path="/requests" element={<RequestsPage />} />
           <Route path="/requests/:id" element={<RequestDetailPage />} />
+          <Route path="/quotations" element={<QuotationsPage />} />
+          <Route path="/quotations/:id" element={<QuotationDetailPage />} />
+          <Route path="/products" element={<ProductsPage />} />
+          <Route path="/customers" element={<CustomersPage />} />
           <Route path="/settings" element={<SettingsPage />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>

@@ -1,7 +1,8 @@
 const { ImapFlow } = require('imapflow');
 const { getSupabase } = require('../config/db');
 const { analyzeEmail, generateDraftReply, shouldProcessEmail } = require('./aiService');
-const { broadcast } = require('./socketService');
+const { processQuotationInquiry } = require('./quotation.service');
+
 
 /**
  * Connect to IMAP server and fetch emails from the last 7 days.
@@ -32,13 +33,9 @@ const fetchNewEmails = async () => {
         const supabase = getSupabase();
 
         try {
-            // Search emails received in the last 7 days (seen or unseen)
-            const sevenDaysAgo = new Date();
-            sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
-            sevenDaysAgo.setHours(0, 0, 0, 0);
-
+            // Fetch all UNREAD emails
             const messages = client.fetch(
-                { since: sevenDaysAgo },
+                { seen: false },
                 {
                     envelope: true,
                     source: true,
@@ -49,7 +46,16 @@ const fetchNewEmails = async () => {
             let newCount = 0;
             let skippedCount = 0;
 
+            const emailsToProcess = [];
             for await (const msg of messages) {
+                emailsToProcess.push({
+                    uid: msg.uid,
+                    envelope: msg.envelope,
+                    source: msg.source.toString(),
+                });
+            }
+
+            for (const msg of emailsToProcess) {
                 try {
                     const envelope = msg.envelope;
                     const messageId = envelope.messageId;
@@ -64,23 +70,21 @@ const fetchNewEmails = async () => {
                         .maybeSingle();
 
                     if (existing) {
+                        await client.messageFlagsAdd({ uid: msg.uid }, ['\\Seen']);
                         continue;
                     }
 
                     const fromAddress = envelope.from?.[0]?.address || 'unknown@email.com';
                     const fromName = envelope.from?.[0]?.name || '';
-                    const emailSource = msg.source.toString();
-                    const body = extractPlainTextBody(emailSource);
+                    const body = extractPlainTextBody(msg.source);
 
                     // ── AI TRIAGE ──────────────────────────────────────────────
-                    // Ask AI whether this email is a genuine business inquiry
                     console.log(`🔍 Triaging email from: ${fromAddress} | Subject: ${envelope.subject}`);
                     const triage = await shouldProcessEmail(fromAddress, envelope.subject, body);
 
                     if (!triage.process) {
                         skippedCount++;
                         console.log(`⏭️  Skipped [AI]: ${triage.reason}`);
-                        // Mark as seen so it won't be evaluated again next poll
                         await client.messageFlagsAdd({ uid: msg.uid }, ['\\Seen']);
                         continue;
                     }
@@ -89,17 +93,16 @@ const fetchNewEmails = async () => {
                     // ─────────────────────────────────────────────────────────
 
                     console.log(`📧 Processing: ${fromAddress} | Subject: ${envelope.subject}`);
-
-                    // AI Analysis
                     console.log('🤖 Running AI analysis...');
                     const aiAnalysis = await analyzeEmail(envelope.subject, body);
 
-                    // Generate AI Draft Reply
+                    const isFollowUp = !!envelope.inReplyTo || /^re:/i.test(envelope.subject || '');
+
                     console.log('🤖 Generating draft reply...');
-                    const aiDraftReply = await generateDraftReply(aiAnalysis);
+                    const aiDraftReply = await generateDraftReply(aiAnalysis, body, isFollowUp);
 
                     // Save to Supabase
-                    const { error: insertError } = await supabase
+                    const { data: savedEmail, error: insertError } = await supabase
                         .from('email_requests')
                         .insert({
                             from_email: fromAddress,
@@ -111,7 +114,9 @@ const fetchNewEmails = async () => {
                             ai_analysis: aiAnalysis,
                             ai_draft_reply: aiDraftReply,
                             status: 'pending',
-                        });
+                        })
+                        .select('id')
+                        .single();
 
                     if (insertError) {
                         console.error(`❌ Failed to save email: ${insertError.message}`);
@@ -121,17 +126,18 @@ const fetchNewEmails = async () => {
                     newCount++;
                     console.log(`✅ Saved & analyzed: ${envelope.subject}`);
 
-                    // 🔌 Push real-time notification to all frontend clients
-                    broadcast('new_email', {
-                        from: fromAddress,
-                        fromName: fromName,
-                        subject: envelope.subject || '(No Subject)',
-                        receivedAt: emailDate.toISOString(),
-                        category: aiAnalysis?.category || 'General Inquiry',
-                        urgency: aiAnalysis?.urgency || 'medium',
-                    });
+                    // ── AUTOMATED QUOTATION GENERATION ───────────────────────
+                    if (['Pricing Request', 'Product Inquiry', 'Custom Order'].includes(aiAnalysis.category)) {
+                        console.log(`🤖 Auto-generating quotation for ${aiAnalysis.category}...`);
+                        try {
+                            const qtResult = await processQuotationInquiry(savedEmail.id);
+                            console.log(`✅ Automated Quotation Created: ${qtResult.quotation?.quotation_number}`);
+                        } catch (qtError) {
+                            console.error(`❌ Failed to auto-generate quotation: ${qtError.message}`);
+                        }
+                    }
+                    // ─────────────────────────────────────────────────────────
 
-                    // Mark as seen
                     await client.messageFlagsAdd({ uid: msg.uid }, ['\\Seen']);
                 } catch (msgError) {
                     console.error(`❌ Error processing message: ${msgError.message}`);
@@ -231,9 +237,20 @@ const extractPlainTextBody = (source) => {
         }
 
         if (isQuotedPrintable && body) {
-            body = body
-                .replace(/=\r?\n/g, '')
-                .replace(/=([0-9A-Fa-f]{2})/g, (_, hex) => String.fromCharCode(parseInt(hex, 16)));
+            body = body.replace(/=\r?\n/g, '');
+            const bytes = [];
+            for (let i = 0; i < body.length; i++) {
+                if (body[i] === '=' && i + 2 < body.length) {
+                    const hex = body.substring(i + 1, i + 3);
+                    if (/^[0-9A-Fa-f]{2}$/.test(hex)) {
+                        bytes.push(parseInt(hex, 16));
+                        i += 2;
+                        continue;
+                    }
+                }
+                bytes.push(body.charCodeAt(i));
+            }
+            body = Buffer.from(bytes).toString('utf-8');
         }
 
         body = body.replace(/\r/g, '').replace(/\n{3,}/g, '\n\n').trim();

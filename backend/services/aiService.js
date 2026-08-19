@@ -69,7 +69,7 @@ const analyzeEmail = async (subject, body) => {
 /**
  * Generate a draft reply using AI based on the analysis and company context
  */
-const generateDraftReply = async (emailAnalysis) => {
+const generateDraftReply = async (emailAnalysis, originalBody = '', isFollowUp = false) => {
     if (!groq) {
         console.warn('⚠️  AI not initialized. Returning default draft.');
         return getDefaultDraftReply(emailAnalysis);
@@ -78,7 +78,7 @@ const generateDraftReply = async (emailAnalysis) => {
     try {
         const companyContext = await getCompanyContext();
 
-        const prompt = draftReplyPrompt(emailAnalysis, companyContext);
+        const prompt = draftReplyPrompt(emailAnalysis, companyContext, originalBody, isFollowUp);
         const chatCompletion = await groq.chat.completions.create({
             messages: [{ role: 'user', content: prompt }],
             model: modelName,
@@ -189,7 +189,11 @@ const shouldProcessEmail = async (fromAddress, subject, bodySnippet) => {
     }
 
     try {
-        const prompt = `You are an email triage assistant for a B2B company. Your job is to decide whether an incoming email is a GENUINE HUMAN BUSINESS INQUIRY that requires a response from the sales/support team.
+        const companyContext = await getCompanyContext();
+
+        const prompt = `You are an email triage assistant for "${companyContext.companyName}" (Industry: ${companyContext.industry}). Your job is to decide whether an incoming email is a GENUINE HUMAN BUSINESS INQUIRY relevant to our company that requires a response from the sales/support team.
+
+Our Products/Services: ${companyContext.productsAndServices.join(', ')}
 
 Email details:
 - From: ${fromAddress}
@@ -197,14 +201,15 @@ Email details:
 - Body preview: ${(bodySnippet || '').substring(0, 500)}
 
 PROCESS the email (return true) if it is:
-- A real human asking about products, services, pricing, partnership, support, or any business matter
-- A customer complaint or feedback that needs attention
-- Any genuine person-to-person communication
+- A real human communicating about our products, services, pricing, partnership, support, or any business matter relevant to our industry.
+- A customer complaint, feedback, or follow-up that needs attention.
+- Any genuine person-to-person business communication.
 
 DO NOT PROCESS (return false) if it is:
-- A newsletter, marketing campaign, or promotional email
-- An automated notification (e.g. bill receipt, delivery tracking, 2FA code, system alert)
-- A social media notification (LinkedIn, Twitter, Facebook, etc.)
+- Unrelated to our business or industry.
+- A newsletter, marketing campaign, or promotional email.
+- An automated notification (e.g. bill receipt, delivery tracking, 2FA code, system alert).
+- A social media notification.
 - An OTP / verification code email
 - An auto-responder or out-of-office reply
 - Spam or phishing

@@ -27,7 +27,7 @@ const initializeTransporter = () => {
  * @param {string} body - Email body content
  * @returns {Object} - Nodemailer send result
  */
-const sendReply = async (to, subject, body) => {
+const sendReply = async (to, subject, body, attachments = []) => {
     if (!transporter) {
         initializeTransporter();
     }
@@ -38,6 +38,7 @@ const sendReply = async (to, subject, body) => {
         subject: subject.startsWith('Re:') ? subject : `Re: ${subject}`,
         text: body,
         html: formatEmailHTML(body),
+        attachments: attachments,
     };
 
     try {

@@ -1,25 +1,42 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import StatsCards from '../components/StatsCards';
 import RequestTable from '../components/RequestTable';
-import { requestsAPI } from '../services/api';
-import useSocket from '../hooks/useSocket';
+import { requestsAPI, quotationsAPI } from '../services/api';
 
 const DashboardPage = () => {
     const navigate = useNavigate();
     const [stats, setStats] = useState(null);
     const [recentRequests, setRecentRequests] = useState([]);
+    const [quotationMetrics, setQuotationMetrics] = useState(null);
     const [loading, setLoading] = useState(true);
+    const lastLatestId = useRef(null);
 
     const fetchDashboardData = useCallback(async () => {
         try {
-            const [statsRes, requestsRes] = await Promise.all([
+            const [statsRes, requestsRes, quotationRes] = await Promise.all([
                 requestsAPI.getStats(),
                 requestsAPI.getAll({ limit: 10, sort: '-createdAt' }),
+                quotationsAPI.getMetrics().catch(() => ({ data: null }))
             ]);
             setStats(statsRes.data);
-            setRecentRequests(requestsRes.data.requests);
+
+            const newRequests = requestsRes.data.requests;
+            if (newRequests.length > 0) {
+                const latestNewId = newRequests[0].id;
+                // If we already tracked an ID, and the top one changed, it's a new email!
+                if (lastLatestId.current && lastLatestId.current !== latestNewId) {
+                    toast.success(
+                        `📧 New email: "${newRequests[0].subject}"`,
+                        { duration: 5000, id: 'sys-new-email' }
+                    );
+                }
+                lastLatestId.current = latestNewId;
+            }
+            setRecentRequests(newRequests);
+
+            if (quotationRes.data) setQuotationMetrics(quotationRes.data);
         } catch (error) {
             console.error('Failed to fetch dashboard data:', error);
         } finally {
@@ -29,16 +46,12 @@ const DashboardPage = () => {
 
     useEffect(() => {
         fetchDashboardData();
+        // Poll every 5 seconds instead of using WebSockets
+        const interval = setInterval(() => {
+            fetchDashboardData();
+        }, 5000);
+        return () => clearInterval(interval);
     }, [fetchDashboardData]);
-
-    // Real-time: refresh dashboard instantly when a new email arrives
-    useSocket('new_email', useCallback((data) => {
-        fetchDashboardData();
-        toast.success(
-            `📧 New email: "${data.subject}"`,
-            { duration: 5000, id: 'new-email-dash' }
-        );
-    }, [fetchDashboardData]));
 
     return (
         <div className="fade-in">
@@ -55,6 +68,28 @@ const DashboardPage = () => {
             ) : (
                 <>
                     <StatsCards stats={stats} />
+
+                    {/* Quotation Metrics */}
+                    {quotationMetrics && (
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '16px', marginBottom: '32px' }}>
+                            <div className="glass-card card-body" onClick={() => navigate('/quotations')} style={{ cursor: 'pointer' }}>
+                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Pending Quotations</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px' }}>{quotationMetrics.draft + quotationMetrics.needsReview}</div>
+                            </div>
+                            <div className="glass-card card-body">
+                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>AI Match Accuracy</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: 'var(--success)' }}>{quotationMetrics.aiMatchRate}%</div>
+                            </div>
+                            <div className="glass-card card-body">
+                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Human Corrections</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: 'var(--warning)' }}>{quotationMetrics.correctionRate}%</div>
+                            </div>
+                            <div className="glass-card card-body">
+                                <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Total Value Generated</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: 'var(--accent-primary)' }}>₹{quotationMetrics.totalValue.toLocaleString('en-IN')}</div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Category & Urgency Breakdown */}
                     {stats && (stats.categoryStats || stats.urgencyStats) && (

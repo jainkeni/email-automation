@@ -3,7 +3,8 @@ import { useParams, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 import AiAnalysisCard from '../components/AiAnalysisCard';
 import DraftReplyEditor from '../components/DraftReplyEditor';
-import { requestsAPI } from '../services/api';
+import FormattedEmailBody from '../components/FormattedEmailBody';
+import { requestsAPI, quotationsAPI } from '../services/api';
 
 const RequestDetailPage = () => {
     const { id } = useParams();
@@ -13,6 +14,7 @@ const RequestDetailPage = () => {
     const [isApproving, setIsApproving] = useState(false);
     const [isRejecting, setIsRejecting] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
+    const [isGeneratingQuotation, setIsGeneratingQuotation] = useState(false);
 
     useEffect(() => {
         fetchRequest();
@@ -71,6 +73,19 @@ const RequestDetailPage = () => {
         }
     };
 
+    const handleGenerateQuotation = async () => {
+        setIsGeneratingQuotation(true);
+        try {
+            const res = await quotationsAPI.analyze(id);
+            toast.success('Quotation draft generated successfully!');
+            navigate(`/quotations/${res.data.quotation.id}`);
+        } catch (error) {
+            toast.error(error.response?.data?.message || 'Failed to generate quotation');
+        } finally {
+            setIsGeneratingQuotation(false);
+        }
+    };
+
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
         return new Date(dateStr).toLocaleString('en-IN', {
@@ -107,6 +122,16 @@ const RequestDetailPage = () => {
                     <span className={`badge badge-${request.status}`}>
                         {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                     </span>
+                    {request.status === 'pending' && (
+                        <button
+                            className="btn btn-primary"
+                            style={{ marginLeft: 'auto' }}
+                            onClick={handleGenerateQuotation}
+                            disabled={isGeneratingQuotation}
+                        >
+                            {isGeneratingQuotation ? 'Generating...' : '📄 Generate Quotation'}
+                        </button>
+                    )}
                 </div>
             </div>
 
@@ -136,7 +161,7 @@ const RequestDetailPage = () => {
                                     </>
                                 )}
                             </div>
-                            <div className="email-body">{request.body}</div>
+                            <FormattedEmailBody body={request.body} />
                         </div>
                     </div>
 

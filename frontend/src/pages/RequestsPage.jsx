@@ -1,8 +1,7 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import toast from 'react-hot-toast';
 import RequestTable from '../components/RequestTable';
 import { requestsAPI } from '../services/api';
-import useSocket from '../hooks/useSocket';
 
 const RequestsPage = () => {
     const [requests, setRequests] = useState([]);
@@ -13,9 +12,10 @@ const RequestsPage = () => {
         search: '',
         page: 1,
     });
+    const lastLatestId = useRef(null);
 
-    const fetchRequests = useCallback(async () => {
-        setLoading(true);
+    const fetchRequests = useCallback(async (isPolling = false) => {
+        if (!isPolling) setLoading(true);
         try {
             const params = {
                 page: filters.page,
@@ -26,7 +26,22 @@ const RequestsPage = () => {
             if (filters.search) params.search = filters.search;
 
             const res = await requestsAPI.getAll(params);
-            setRequests(res.data.requests);
+
+            const newRequests = res.data.requests;
+
+            // Only fire toast if we are on page 1 and no active search
+            if (filters.page === 1 && !filters.search && newRequests.length > 0) {
+                const latestNewId = newRequests[0].id;
+                if (lastLatestId.current && lastLatestId.current !== latestNewId) {
+                    toast.success(
+                        `📧 New email from ${newRequests[0].from_name || newRequests[0].from_email}\n"${newRequests[0].subject}"`,
+                        { duration: 5000, id: 'sys-new-email-req' }
+                    );
+                }
+                lastLatestId.current = latestNewId;
+            }
+
+            setRequests(newRequests);
             setPagination(res.data.pagination);
         } catch (error) {
             console.error('Failed to fetch requests:', error);
@@ -36,17 +51,12 @@ const RequestsPage = () => {
     }, [filters]);
 
     useEffect(() => {
-        fetchRequests();
+        fetchRequests(false);
+        const interval = setInterval(() => {
+            fetchRequests(true);
+        }, 5000);
+        return () => clearInterval(interval);
     }, [fetchRequests]);
-
-    // Real-time: refresh list instantly when a new email arrives
-    useSocket('new_email', useCallback((data) => {
-        fetchRequests();
-        toast.success(
-            `📧 New email from ${data.fromName || data.from}\n"${data.subject}"`,
-            { duration: 5000 }
-        );
-    }, [fetchRequests]));
 
     const statusTabs = [
         { key: 'all', label: 'All' },

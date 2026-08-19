@@ -1,0 +1,22 @@
+[
+  {
+    "id": "7352415c-a383-4021-8434-9f0c45d61f4f",
+    "quotation_number": "QT-0001",
+    "customer_id": "6690c83a-5f5e-4780-a49b-6319fabcfba5"
+  },
+  {
+    "id": "ec73ca21-aecc-4c1a-80b7-97c260bace87",
+    "quotation_number": "QT-0002",
+    "customer_id": "6690c83a-5f5e-4780-a49b-6319fabcfba5"
+  },
+  {
+    "id": "061758c0-dba8-4b8f-8069-77a6a4a01e22",
+    "quotation_number": "QT-0004",
+    "customer_id": "6690c83a-5f5e-4780-a49b-6319fabcfba5"
+  },
+  {
+    "id": "da2a0c81-5439-49cc-91b3-e38d108a20c5",
+    "quotation_number": "QT-0003",
+    "customer_id": "6690c83a-5f5e-4780-a49b-6319fabcfba5"
+  }
+]

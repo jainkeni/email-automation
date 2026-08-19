@@ -8,6 +8,9 @@ const Sidebar = ({ pendingCount = 0, isOpen, onClose }) => {
     const navItems = [
         { path: '/', label: 'Dashboard', icon: '📊' },
         { path: '/requests', label: 'Email Requests', icon: '📧', badge: pendingCount },
+        { path: '/quotations', label: 'Quotations', icon: '📄' },
+        { path: '/products', label: 'Products', icon: '📦' },
+        { path: '/customers', label: 'Customers', icon: '👥' },
         { path: '/settings', label: 'Settings', icon: '⚙️' },
     ];
 

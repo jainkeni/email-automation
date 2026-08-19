@@ -45,7 +45,7 @@ router.get('/', async (req, res) => {
         }
 
         query = query
-            .order('created_at', { ascending: false })
+            .order('received_at', { ascending: false })
             .range(offset, offset + parseInt(limit) - 1);
 
         const { data: requests, error, count } = await query;

@@ -8,11 +8,14 @@ const { initSupabase } = require('./config/db');
 const { initializeAI } = require('./services/aiService');
 const { initializeTransporter } = require('./services/emailSender');
 const { fetchNewEmails } = require('./services/emailFetcher');
-const { initWebSocket } = require('./services/socketService');
+
 
 const authRoutes = require('./routes/authRoutes');
 const requestRoutes = require('./routes/requestRoutes');
 const settingsRoutes = require('./routes/settingsRoutes');
+const productRoutes = require('./routes/productRoutes');
+const customerRoutes = require('./routes/customerRoutes');
+const quotationRoutes = require('./routes/quotationRoutes');
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -28,6 +31,9 @@ app.use(express.json());
 app.use('/api/auth', authRoutes);
 app.use('/api/requests', requestRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/products', productRoutes);
+app.use('/api/customers', customerRoutes);
+app.use('/api/quotations', quotationRoutes);
 
 // Health check
 app.get('/api/health', (req, res) => {
@@ -56,23 +62,26 @@ const startServer = async () => {
         // Initialize email transporter
         initializeTransporter();
 
-        // Schedule email fetching every 2 minutes
-        cron.schedule('*/2 * * * *', async () => {
-            console.log('⏰ Cron: Fetching new emails...');
-            await fetchNewEmails();
+        // Schedule email fetching every 3 seconds
+        let isFetching = false;
+        cron.schedule('*/3 * * * * *', async () => {
+            if (isFetching) return; // Prevent overlapping if one fetch takes longer than 3 seconds
+            isFetching = true;
+            try {
+                await fetchNewEmails();
+            } finally {
+                isFetching = false;
+            }
         });
+        console.log('📅 Email fetch cron job scheduled (every 3 seconds)');
 
-        console.log('📅 Email fetch cron job scheduled (every 2 minutes)');
-
-        // Create HTTP server and attach WebSocket
+        // Create HTTP server
         const httpServer = http.createServer(app);
-        initWebSocket(httpServer);
 
         // Start server
         httpServer.listen(PORT, () => {
             console.log(`\n🚀 Server running on http://localhost:${PORT}`);
-            console.log(`📬 Email polling active (every 2 min)`);
-            console.log(`🔌 WebSocket active on ws://localhost:${PORT}/ws`);
+            console.log(`📬 Email polling active (every 3 seconds)`);
             console.log(`🤖 AI Service: ${process.env.GROQ_API_KEY ? 'Enabled (Groq)' : 'Disabled (no API key)'}`);
             console.log(`🗄️  Database: Supabase`);
             console.log(`🌐 Frontend URL: ${process.env.FRONTEND_URL || 'http://localhost:5174'}\n`);

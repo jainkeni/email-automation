@@ -22,45 +22,42 @@ Extract and return a JSON object with the following fields:
 IMPORTANT: Return ONLY the JSON object, no markdown formatting, no code blocks, no extra text.
 `;
 
-const draftReplyPrompt = (emailAnalysis, companyContext) => `
-You are a professional B2B communication specialist. Generate a polished email reply based on the customer's request and company information.
+const draftReplyPrompt = (emailAnalysis, companyContext, originalBody, isFollowUp) => `
+You are a highly skilled Sales & Support Executive. Generate a polished, specific, and highly-personalized email reply directly responding to the customer's exact email.
 
-**Customer Request Analysis:**
+**CRITICAL RULE:** Do NOT generate a generic "we received your inquiry" response. You MUST read the original email and directly answer their questions. If they ask for numbers, sizes, dates, or prices, give specific details or realistically estimated placeholder details based on the company context. Directly address the meat of their email.
+
+${isFollowUp ? '**Note: This is a FOLLOW-UP EMAIL. Acknowledge the ongoing conversation and respond contextually to their latest reply.**' : '**Note: This is a NEW INQUIRY. Start a fresh conversation.**'}
+
+**Original Customer Email:**
+"""
+${originalBody}
+"""
+
+**Extracted Analysis:**
 ${JSON.stringify(emailAnalysis, null, 2)}
 
-**Company Information:**
-- Company Name: ${companyContext.companyName}
-- Industry: ${companyContext.industry}
-- Products/Services: ${companyContext.productsAndServices.join(', ')}
-- Pricing: ${companyContext.pricingInfo}
-- Business Hours: ${companyContext.businessHours}
-- Location: ${companyContext.location}
+**Our Company Guidelines & Details:**
+- Company: ${companyContext.companyName} (${companyContext.industry})
+- Products summary: ${companyContext.productsAndServices.join(', ')}
+- Pricing philosophy: ${companyContext.pricingInfo}
 - Contact: ${companyContext.contactEmail} | ${companyContext.contactPhone}
-- Website: ${companyContext.website}
-- Response Time: ${companyContext.policies.responseTime}
-- MOQ: ${companyContext.policies.minimumOrderQuantity}
-- Payment Terms: ${companyContext.policies.paymentTerms}
-- Shipping: ${companyContext.policies.shippingInfo}
-- Warranty: ${companyContext.policies.warrantyInfo}
 - Tone: ${companyContext.toneOfVoice}
-- Additional Notes: ${companyContext.additionalNotes}
+- Notes: ${companyContext.additionalNotes}
 
-**Guidelines:**
-1. Address the customer by name (if known) or use a professional greeting
-2. Acknowledge their specific requirements
-3. Provide relevant information about the company's offerings that match their needs
-4. If pricing was asked, mention that a detailed quote will follow or provide general pricing info
-5. If timeline was mentioned, acknowledge it and confirm feasibility or suggest alternatives
-6. Include a clear call-to-action (schedule a call, reply with more details, etc.)
-7. Keep the tone ${companyContext.toneOfVoice}
-8. Sign off with the company name
-9. Keep the reply concise but comprehensive (150-250 words ideal)
-10. Do NOT use markdown formatting - write plain text email
+**Requirements:**
+1. Keep the response VERY SHORT and CONCISE.
+2. Directly answer their main questions using numbers and specifics when possible. Do not write filler text.
+3. DO NOT use tables for data or pricing. Always use simple bulleted lists (using - or *), as text-based tables will not render correctly.
+4. MUST END the email with a single follow-up question or a clear statement about the next steps.
+5. Be conversational and professional. Keep the tone ${companyContext.toneOfVoice}.
+6. Do NOT use any other markdown formatting (no bold/italics), write a plain text email.
+7. Sign off professionally as "The Team at ${companyContext.companyName}".
 
-Return ONLY the email body text, no subject line, no extra commentary.
+Return ONLY the plain text email body.
 `;
 
 module.exports = {
-    emailAnalysisPrompt,
-    draftReplyPrompt,
+  emailAnalysisPrompt,
+  draftReplyPrompt,
 };

@@ -54,4 +54,39 @@ export const settingsAPI = {
     update: (data) => api.put('/settings', data),
 };
 
+// Products API
+export const productsAPI = {
+    getAll: (params) => api.get('/products', { params }),
+    getFilters: () => api.get('/products/filters'),
+    getById: (id) => api.get(`/products/${id}`),
+    create: (data) => api.post('/products', data),
+    uploadBulk: (products) => api.post('/products/bulk', { products }),
+    update: (id, data) => api.put(`/products/${id}`, data),
+    delete: (id) => api.delete(`/products/${id}`),
+};
+
+// Customers API
+export const customersAPI = {
+    getAll: (params) => api.get('/customers', { params }),
+    getById: (id) => api.get(`/customers/${id}`),
+    getPurchaseHistory: (id) => api.get(`/customers/${id}/purchase-history`),
+    create: (data) => api.post('/customers', data),
+    update: (id, data) => api.put(`/customers/${id}`, data),
+};
+
+// Quotations API
+export const quotationsAPI = {
+    analyze: (inquiryId) => api.post(`/quotations/analyze/${inquiryId}`),
+    getAll: (params) => api.get('/quotations', { params }),
+    getById: (id) => api.get(`/quotations/${id}`),
+    update: (id, data) => api.put(`/quotations/${id}`, data),
+    updateItem: (quotationId, itemId, data) => api.put(`/quotations/${quotationId}/items/${itemId}`, data),
+    deleteItem: (quotationId, itemId) => api.delete(`/quotations/${quotationId}/items/${itemId}`),
+    approve: (id) => api.post(`/quotations/${id}/approve`),
+    reject: (id, reason) => api.post(`/quotations/${id}/reject`, { reason }),
+    send: (id) => api.post(`/quotations/${id}/send`),
+    getAudit: (id) => api.get(`/quotations/${id}/audit`),
+    getMetrics: () => api.get('/quotations/metrics/dashboard'),
+};
+
 export default api;
