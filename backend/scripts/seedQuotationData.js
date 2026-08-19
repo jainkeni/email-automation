@@ -119,21 +119,14 @@ function generatePrice(category, size, material) {
     return Math.round(price * 100) / 100;
 }
 
-// Hard-coded critical test products that MUST exist
+// Hard-coded critical test products that MUST exist to match user testing scenarios
 function getRequiredProducts() {
     return [
-        { sku: 'VAL-001', name: 'Ball Valve 2 inch SS304', category: 'Ball Valve', material: 'SS304', size: '2 inch', base_price: 3200, unit: 'PCS', description: 'Industrial ball valve, 2 inch, SS304 stainless steel, 150# flanged, full bore design.', specifications: { pressure_rating: '150#', end_connection: 'Flanged', bore: 'Full Bore', standard: 'ASTM A351' } },
-        { sku: 'VAL-002', name: 'Ball Valve 3 inch SS316', category: 'Ball Valve', material: 'SS316', size: '3 inch', base_price: 4200, unit: 'PCS', description: 'Industrial ball valve, 3 inch, SS316 stainless steel, 300# flanged, full bore design.', specifications: { pressure_rating: '300#', end_connection: 'Flanged', bore: 'Full Bore', standard: 'ASTM A351' } },
-        { sku: 'VAL-003', name: 'Gate Valve 3 inch SS316', category: 'Gate Valve', material: 'SS316', size: '3 inch', base_price: 5100, unit: 'PCS', description: 'Industrial gate valve, 3 inch, SS316 stainless steel, 300# flanged.', specifications: { pressure_rating: '300#', end_connection: 'Flanged', standard: 'ASTM A351' } },
-        { sku: 'VAL-004', name: 'Ball Valve 4 inch SS316', category: 'Ball Valve', material: 'SS316', size: '4 inch', base_price: 5800, unit: 'PCS', description: 'Industrial ball valve, 4 inch, SS316 stainless steel, 300# flanged.', specifications: { pressure_rating: '300#', end_connection: 'Flanged', bore: 'Full Bore', standard: 'ASTM A351' } },
-        { sku: 'VAL-005', name: 'Ball Valve 2 inch SS316', category: 'Ball Valve', material: 'SS316', size: '2 inch', base_price: 3800, unit: 'PCS', description: 'Industrial ball valve, 2 inch, SS316 stainless steel, 150# flanged.', specifications: { pressure_rating: '150#', end_connection: 'Flanged', bore: 'Full Bore' } },
-        { sku: 'FIT-001', name: 'Elbow Fitting 2 inch SS304', category: 'Elbow Fitting', material: 'SS304', size: '2 inch', base_price: 580, unit: 'PCS', description: '90 degree elbow fitting, 2 inch, SS304 stainless steel, butt weld.', specifications: { angle: '90°', end_connection: 'Butt Weld', schedule: 'SCH40' } },
-        { sku: 'FIT-002', name: 'Elbow Fitting 3 inch SS316', category: 'Elbow Fitting', material: 'SS316', size: '3 inch', base_price: 820, unit: 'PCS', description: '90 degree elbow fitting, 3 inch, SS316 stainless steel, butt weld.', specifications: { angle: '90°', end_connection: 'Butt Weld', schedule: 'SCH40' } },
-        { sku: 'FIT-003', name: 'Tee Fitting 3 inch SS316', category: 'Tee Fitting', material: 'SS316', size: '3 inch', base_price: 1050, unit: 'PCS', description: 'Equal tee fitting, 3 inch, SS316 stainless steel, butt weld.', specifications: { type: 'Equal Tee', end_connection: 'Butt Weld', schedule: 'SCH40' } },
-        { sku: 'PIP-001', name: 'Industrial Pipe 2 inch SS304', category: 'Industrial Pipe', material: 'SS304', size: '2 inch', base_price: 950, unit: 'MTR', description: 'Seamless industrial pipe, 2 inch, SS304 stainless steel, SCH40.', specifications: { type: 'Seamless', schedule: 'SCH40', standard: 'ASTM A312' } },
-        { sku: 'PIP-002', name: 'Industrial Pipe 3 inch SS316', category: 'Industrial Pipe', material: 'SS316', size: '3 inch', base_price: 1450, unit: 'MTR', description: 'Seamless industrial pipe, 3 inch, SS316 stainless steel, SCH40.', specifications: { type: 'Seamless', schedule: 'SCH40', standard: 'ASTM A312' } },
-        { sku: 'FLG-001', name: 'Flange 3 inch SS316', category: 'Flange', material: 'SS316', size: '3 inch', base_price: 1800, unit: 'PCS', description: 'Weld neck flange, 3 inch, SS316, ANSI B16.5 300#.', specifications: { type: 'Weld Neck', pressure_rating: '300#', standard: 'ANSI B16.5' } },
-        { sku: 'GSK-001', name: 'Gasket 3 inch SS316', category: 'Gasket', material: 'SS316', size: '3 inch', base_price: 280, unit: 'PCS', description: 'Spiral wound gasket, 3 inch, SS316 inner ring, graphite filler.', specifications: { type: 'Spiral Wound', filler: 'Graphite', pressure_rating: '300#' } },
+        { sku: 'VAL-BF-004', name: 'Butterfly Valve 4-inch', category: 'Butterfly Valve', material: 'Cast Iron / SS316 Disc', size: '4 inch', base_price: 115.00, unit: 'PCS', description: 'Industrial butterfly valve, 4-inch, wafer type, resilient seated.', specifications: { pressure_rating: '150 PSI', end_connection: 'Wafer', standard: 'API 609' } },
+        { sku: 'VAL-BF-006', name: 'Butterfly Valve 6-inch', category: 'Butterfly Valve', material: 'Cast Iron / SS316 Disc', size: '6 inch', base_price: 145.00, unit: 'PCS', description: 'Industrial butterfly valve, 6-inch, wafer type, resilient seated.', specifications: { pressure_rating: '150 PSI', end_connection: 'Wafer', standard: 'API 609' } },
+        { sku: 'VAL-BV-002', name: 'Ball Valve 2-inch', category: 'Ball Valve', material: 'SS316', size: '2 inch', base_price: 75.00, unit: 'PCS', description: 'Industrial ball valve, 2-inch, SS316 stainless steel, threaded.', specifications: { pressure_rating: '1000 WOG', end_connection: 'Threaded', standard: 'ASTM A351' } },
+        { sku: 'GSK-SW-002', name: 'Spiral Wound Gasket 2-inch SS-316', category: 'Gasket', material: 'SS316', size: '2 inch', base_price: 1.80, unit: 'PCS', description: 'Spiral wound gasket, 2-inch, SS-316 inner and outer ring with graphite filler.', specifications: { type: 'Spiral Wound', filler: 'Graphite', pressure_rating: '150#' } },
+        { sku: 'FIT-TC-002', name: 'Threaded Coupling 2-inch SS-316', category: 'Coupling', material: 'SS316', size: '2 inch', base_price: 4.50, unit: 'PCS', description: 'Threaded coupling, full type, 2-inch, SS-316, 3000# rating.', specifications: { type: 'Full Coupling', end_connection: 'NPT Threaded', pressure_rating: '3000#' } },
     ];
 }
 
@@ -165,22 +158,22 @@ function generateOrders(customers, products) {
 
     // Define purchasing patterns — key customers buy certain products repeatedly
     const purchasePatterns = {
-        0: ['VAL-002', 'FIT-002', 'PIP-002', 'FLG-001', 'GSK-001'], // XYZ Engineering
-        1: ['VAL-001', 'FIT-001', 'PIP-001', 'VAL-005'],             // ABC Industries
-        2: ['VAL-003', 'VAL-004', 'FIT-003', 'FLG-001'],             // Sunrise Manufacturing
-        3: ['VAL-002', 'VAL-003', 'PIP-002', 'GSK-001'],             // Delta Petrochemicals
-        4: ['VAL-004', 'FIT-002', 'FIT-003', 'PIP-002'],             // Omega Power Systems
-        5: ['VAL-001', 'VAL-002', 'FIT-001', 'FIT-002'],             // Star Fabricators
-        6: ['VAL-003', 'VAL-004', 'PIP-001', 'PIP-002', 'FLG-001'], // Bharat Heavy Works
-        7: ['FIT-001', 'FIT-002', 'FIT-003', 'PIP-001', 'PIP-002'], // Metro Piping Solutions
-        8: ['VAL-002', 'VAL-005', 'FLG-001', 'GSK-001'],             // Coastal Marine Engineering
-        9: ['VAL-001', 'VAL-002', 'VAL-003', 'FIT-002', 'PIP-002'], // Pinnacle Chemical Works
+        0: ['VAL-BF-004', 'FIT-TC-002', 'GSK-SW-002'], // XYZ Engineering
+        1: ['VAL-BV-002', 'VAL-BF-006'],             // ABC Industries
+        2: ['VAL-BF-006', 'FIT-TC-002'],             // Sunrise Manufacturing
+        3: ['VAL-BF-004', 'GSK-SW-002'],             // Delta Petrochemicals
+        4: ['VAL-BV-002', 'FIT-TC-002'],             // Omega Power Systems
+        5: ['VAL-BF-004', 'VAL-BV-002'],             // Star Fabricators
+        6: ['VAL-BF-006', 'FIT-TC-002'], // Bharat Heavy Works
+        7: ['FIT-TC-002', 'GSK-SW-002'], // Metro Piping Solutions
+        8: ['VAL-BF-004', 'VAL-BF-006', 'GSK-SW-002'],             // Coastal Marine Engineering
+        9: ['VAL-BV-002', 'FIT-TC-002', 'GSK-SW-002'], // Pinnacle Chemical Works
     };
 
     // Generate 10-15 orders per customer, spread over the last 2 years
     for (let ci = 0; ci < customers.length; ci++) {
         const customer = customers[ci];
-        const patternSkus = purchasePatterns[ci] || ['VAL-001', 'FIT-001'];
+        const patternSkus = purchasePatterns[ci] || ['VAL-BF-004', 'FIT-TC-002'];
         const numOrders = 10 + Math.floor(Math.random() * 6); // 10-15
 
         for (let oi = 0; oi < numOrders; oi++) {
@@ -249,12 +242,12 @@ function generateCustomerPrices(customers, products) {
 
     // Top customers get 5-10% off on their frequent products
     const discountPatterns = {
-        0: { skus: ['VAL-002', 'FIT-002', 'PIP-002'], discount: 0.08 },
-        1: { skus: ['VAL-001', 'FIT-001'], discount: 0.07 },
-        2: { skus: ['VAL-003', 'VAL-004'], discount: 0.10 },
-        3: { skus: ['VAL-002', 'PIP-002'], discount: 0.06 },
-        4: { skus: ['VAL-004', 'FIT-002'], discount: 0.09 },
-        8: { skus: ['VAL-002', 'FLG-001'], discount: 0.05 },
+        0: { skus: ['VAL-BF-004', 'FIT-TC-002'], discount: 0.08 },
+        1: { skus: ['VAL-BV-002'], discount: 0.07 },
+        2: { skus: ['VAL-BF-006'], discount: 0.10 },
+        3: { skus: ['VAL-BF-004', 'GSK-SW-002'], discount: 0.06 },
+        4: { skus: ['VAL-BV-002', 'FIT-TC-002'], discount: 0.09 },
+        8: { skus: ['VAL-BF-004', 'GSK-SW-002'], discount: 0.05 },
     };
 
     for (const [ci, pattern] of Object.entries(discountPatterns)) {
@@ -280,6 +273,16 @@ async function seed() {
     console.log('🌱 Starting seed...\n');
     initSupabase();
     const supabase = getSupabase();
+
+    console.log('🏢 Updating company settings...');
+    await supabase.from('company_settings').update({
+        company_name: 'Levia',
+        industry: 'Industrial Valves & Fittings',
+        contact_email: 'mohan.mehta@apeprocess.com', // As seen in emails
+        products_and_services: ['Butterfly Valves', 'Ball Valves', 'Gaskets', 'Couplings'],
+        pricing_info: 'We offer bulk discounts for loyal customers.',
+    }).neq('id', '00000000-0000-0000-0000-000000000000');
+
 
     // 1. Clear existing quotation data (reverse dependency order)
     console.log('🗑️  Clearing existing quotation-related data...');
