@@ -120,7 +120,7 @@ const QuotationsPage = () => {
                                                 <div style={{ fontWeight: 500 }}>{q.customers?.company_name || 'Unknown User'}</div>
                                                 <div style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>{q.customers?.email || q.quotation_requests?.email_id}</div>
                                             </td>
-                                            <td style={{ fontWeight: '600' }}>₹{parseFloat(q.grand_total).toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                            <td style={{ fontWeight: '600' }}>${parseFloat(q.grand_total).toLocaleString('en-US', { minimumFractionDigits: 2 })}</td>
                                             <td>
                                                 <span className={`badge ${getStatusTheme(q.status)}`}>
                                                     {q.status.replace('_', ' ')}

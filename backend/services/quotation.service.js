@@ -217,7 +217,7 @@ const processQuotationInquiry = async (emailId) => {
             console.log(`[PRICING] Retrieving price for product ${matchResult.selectedProduct.sku}`);
             const pricing = await getCustomerPrice(customerId, productId);
             unitPrice = pricing.unitPrice;
-            console.log(`[PRICING] Price: ₹${unitPrice} (source: ${pricing.source})`);
+            console.log(`[PRICING] Price: $${unitPrice} (source: ${pricing.source})`);
         }
 
         const quantity = item.quantity;

@@ -149,7 +149,7 @@ const QuotationDetailPage = () => {
                                         <th style={{ textAlign: 'left', padding: '12px' }}>Requested</th>
                                         <th style={{ textAlign: 'left', padding: '12px' }}>Matched Product</th>
                                         <th style={{ width: '100px', textAlign: 'center', padding: '12px' }}>Quantity</th>
-                                        <th style={{ width: '120px', textAlign: 'right', padding: '12px' }}>Unit Price (₹)</th>
+                                        <th style={{ width: '120px', textAlign: 'right', padding: '12px' }}>Unit Price ($)</th>
                                         <th style={{ width: '120px', textAlign: 'right', padding: '12px' }}>Total</th>
                                     </tr>
                                 </thead>
@@ -200,11 +200,11 @@ const QuotationDetailPage = () => {
                                                             style={{ width: '100px', padding: '6px', textAlign: 'right' }}
                                                         />
                                                     ) : (
-                                                        <div>₹{formatNum(item.unit_price)}</div>
+                                                        <div>${formatNum(item.unit_price)}</div>
                                                     )}
                                                 </td>
                                                 <td style={{ padding: '16px 12px', textAlign: 'right', fontWeight: 600, fontSize: '15px' }}>
-                                                    ₹{formatNum(item.line_total)}
+                                                    ${formatNum(item.line_total)}
                                                 </td>
                                             </tr>
                                             {editingItem === item.id && (
@@ -229,7 +229,7 @@ const QuotationDetailPage = () => {
                                                                             onMouseOut={e => e.currentTarget.style.background = 'transparent'}
                                                                         >
                                                                             <div><span style={{ fontWeight: 600 }}>{p.sku}</span> - {p.name}</div>
-                                                                            <div style={{ fontWeight: 600 }}>₹{p.base_price}</div>
+                                                                            <div style={{ fontWeight: 600 }}>${p.base_price}</div>
                                                                         </div>
                                                                     ))}
                                                                 </div>
@@ -277,22 +277,22 @@ const QuotationDetailPage = () => {
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--text-secondary)' }}>
                             <span>Subtotal</span>
-                            <span>₹{formatNum(quotation.subtotal)}</span>
+                            <span>${formatNum(quotation.subtotal)}</span>
                         </div>
                         {parseFloat(quotation.discount) > 0 && (
                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '8px', color: 'var(--success)' }}>
                                 <span>Discount</span>
-                                <span>-₹{formatNum(quotation.discount)}</span>
+                                <span>-${formatNum(quotation.discount)}</span>
                             </div>
                         )}
                         <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '16px', color: 'var(--text-secondary)' }}>
                             <span>GST (18%)</span>
-                            <span>₹{formatNum(quotation.tax)}</span>
+                            <span>${formatNum(quotation.tax)}</span>
                         </div>
 
                         <div style={{ display: 'flex', justifyContent: 'space-between', paddingTop: '16px', borderTop: '1px solid var(--border-primary)', fontWeight: 700, fontSize: '20px', color: 'var(--text-primary)' }}>
                             <span>Grand Total</span>
-                            <span>₹{formatNum(quotation.grand_total)}</span>
+                            <span>${formatNum(quotation.grand_total)}</span>
                         </div>
                     </div>
 
@@ -328,6 +328,6 @@ const QuotationDetailPage = () => {
     );
 };
 
-const formatNum = (num) => parseFloat(num || 0).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const formatNum = (num) => parseFloat(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 
 export default QuotationDetailPage;
