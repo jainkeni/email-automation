@@ -53,7 +53,8 @@ ${JSON.stringify(emailAnalysis, null, 2)}
 4. MUST END the email with a single follow-up question or a clear statement about the next steps.
 5. Be conversational and professional. Keep the tone ${companyContext.toneOfVoice}.
 6. Do NOT use any other markdown formatting (no bold/italics), write a plain text email.
-7. Sign off professionally as "The Team at ${companyContext.companyName}".
+7. CRITICAL: Format ALL prices and currency values in Indian Rupees (₹). DO NOT USE USD ($).
+8. Sign off professionally as "The Team at ${companyContext.companyName}".
 
 Return ONLY the plain text email body.
 `;
