@@ -8,6 +8,7 @@ Extract and return a JSON object with the following fields:
 {
   "customerName": "Name of the person who sent the email (if identifiable, otherwise 'Not specified')",
   "company": "Company/organization name (if mentioned, otherwise 'Not specified')",
+  "contactNumber": "Phone number or contact number (if mentioned in signature or body, otherwise 'Not specified')",
   "productOrServiceNeeded": "What product or service they are looking for",
   "specifications": "Any specific requirements, features, or specifications mentioned",
   "quantity": "Quantity needed (if mentioned, otherwise 'Not specified')",

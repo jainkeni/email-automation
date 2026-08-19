@@ -166,7 +166,8 @@ const processQuotationInquiry = async (emailId) => {
     // 3. Identify or create customer 
     // We CREATE the customer immediately rather than dropping them on the floor as UNKNOWN
     console.log(`[CUSTOMER] Identifying/Creating customer: ${email.from_email}`);
-    const customer = await findCustomerByEmail(email.from_email, true, email.from_name);
+    const aiDetails = email.ai_analysis || {};
+    const customer = await findCustomerByEmail(email.from_email, true, email.from_name, aiDetails);
     const customerId = customer?.id || null;
     const customerStatus = customer ? 'IDENTIFIED' : 'UNKNOWN_CUSTOMER';
 

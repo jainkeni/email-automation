@@ -173,13 +173,17 @@ const getCustomerPurchasedProducts = async (customerId, filters = {}) => {
  * Look up a customer by email address.
  * Returns the customer record or null.
  */
-const findCustomerByEmail = async (email, createIfMissing = false, fromName = null) => {
+/**
+ * Look up a customer by email address.
+ * Returns the customer record or null.
+ */
+const findCustomerByEmail = async (email, createIfMissing = false, fromName = null, aiDetails = {}) => {
     if (!email) return null;
 
     const supabase = getSupabase();
     const normalizedEmail = email.toLowerCase().trim();
 
-    const { data, error } = await supabase
+    const { data: existing, error } = await supabase
         .from('customers')
         .select('*')
         .eq('email', normalizedEmail)
@@ -190,17 +194,43 @@ const findCustomerByEmail = async (email, createIfMissing = false, fromName = nu
         return null;
     }
 
-    if (data) {
-        return data;
+    const resolvedCompany = (aiDetails.company && aiDetails.company !== 'Not specified')
+        ? aiDetails.company
+        : (fromName || normalizedEmail.split('@')[0]);
+
+    const resolvedName = (aiDetails.customerName && aiDetails.customerName !== 'Not specified')
+        ? aiDetails.customerName
+        : fromName;
+
+    const resolvedPhone = (aiDetails.contactNumber && aiDetails.contactNumber !== 'Not specified')
+        ? aiDetails.contactNumber
+        : '';
+
+    if (existing) {
+        // Option to update existing customer if they previously lacked these details:
+        let updates = {};
+        if (!existing.company_name && resolvedCompany) updates.company_name = resolvedCompany;
+        if (!existing.contact_name && resolvedName) updates.contact_name = resolvedName;
+        if (!existing.phone && resolvedPhone) updates.phone = resolvedPhone;
+
+        if (Object.keys(updates).length > 0) {
+            await supabase.from('customers').update(updates).eq('id', existing.id);
+            return { ...existing, ...updates };
+        }
+
+        return existing;
     }
 
-    if (!data && createIfMissing) {
+    if (!existing && createIfMissing) {
         console.log(`[CUSTOMER] Auto-creating new customer for ${normalizedEmail}...`);
+
         const { data: newCustomer, error: insertErr } = await supabase
             .from('customers')
             .insert({
                 email: normalizedEmail,
-                company_name: fromName || normalizedEmail.split('@')[0]
+                company_name: resolvedCompany,
+                contact_name: resolvedName || '',
+                phone: resolvedPhone || ''
             })
             .select('*')
             .single();
