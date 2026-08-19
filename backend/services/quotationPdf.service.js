@@ -60,10 +60,10 @@ const generateQuotationEmail = async (quotationId) => {
   const companyLocation = settings?.location || '';
 
   const validUntil = quotation.valid_until
-    ? new Date(quotation.valid_until).toLocaleDateString('en-US')
-    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-US');
+    ? new Date(quotation.valid_until).toLocaleDateString('en-IN')
+    : new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toLocaleDateString('en-IN');
 
-  const quotationDate = new Date(quotation.created_at).toLocaleDateString('en-US');
+  const quotationDate = new Date(quotation.created_at).toLocaleDateString('en-IN');
 
   // Build item rows
   const validItems = items.filter(item => item.product_id != null && item.status !== 'REJECTED' && item.status !== 'UNAVAILABLE');
@@ -74,8 +74,8 @@ const generateQuotationEmail = async (quotationId) => {
     const sku = product?.sku || '—';
     const desc = product ? `${product.name}` : item.requested_description;
     const qty = item.quantity || '—';
-    const unitPrice = item.unit_price ? `$${formatNumber(item.unit_price)}` : '—';
-    const total = item.line_total ? `$${formatNumber(item.line_total)}` : '—';
+    const unitPrice = item.unit_price ? `₹${formatNumber(item.unit_price)}` : '—';
+    const total = item.line_total ? `₹${formatNumber(item.line_total)}` : '—';
     const unit = product?.unit || 'PCS';
 
     return `<tr>
@@ -146,20 +146,20 @@ const generateQuotationEmail = async (quotationId) => {
         <table style="min-width:250px; border-collapse:collapse;">
           <tr>
             <td style="padding:8px 16px; font-size:14px; color:#6b7280;">Subtotal</td>
-            <td style="padding:8px 16px; font-size:14px; text-align:right;">$${formatNumber(quotation.subtotal)}</td>
+            <td style="padding:8px 16px; font-size:14px; text-align:right;">₹${formatNumber(quotation.subtotal)}</td>
           </tr>
           ${quotation.discount > 0 ? `
           <tr>
             <td style="padding:8px 16px; font-size:14px; color:#6b7280;">Discount</td>
-            <td style="padding:8px 16px; font-size:14px; text-align:right; color:#10b981;">-$${formatNumber(quotation.discount)}</td>
+            <td style="padding:8px 16px; font-size:14px; text-align:right; color:#10b981;">-₹${formatNumber(quotation.discount)}</td>
           </tr>` : ''}
           <tr>
             <td style="padding:8px 16px; font-size:14px; color:#6b7280;">GST (18%)</td>
-            <td style="padding:8px 16px; font-size:14px; text-align:right;">$${formatNumber(quotation.tax)}</td>
+            <td style="padding:8px 16px; font-size:14px; text-align:right;">₹${formatNumber(quotation.tax)}</td>
           </tr>
           <tr style="border-top:2px solid #4f46e5;">
             <td style="padding:12px 16px; font-size:16px; font-weight:700; color:#1f2937;">Grand Total</td>
-            <td style="padding:12px 16px; font-size:16px; font-weight:700; text-align:right; color:#4f46e5;">$${formatNumber(quotation.grand_total)}</td>
+            <td style="padding:12px 16px; font-size:16px; font-weight:700; text-align:right; color:#4f46e5;">₹${formatNumber(quotation.grand_total)}</td>
           </tr>
         </table>
       </div>
@@ -210,8 +210,8 @@ const generateQuotationEmail = async (quotationId) => {
     textLines.push(`${i + 1}. ${product?.name || item.requested_description}`);
     textLines.push(`   SKU: ${product?.sku || '—'}`);
     textLines.push(`   Quantity: ${item.quantity || '—'} ${product?.unit || 'PCS'}`);
-    textLines.push(`   Unit Price: $${formatNumber(item.unit_price)}`);
-    textLines.push(`   Total: $${formatNumber(item.line_total)}`);
+    textLines.push(`   Unit Price: ₹${formatNumber(item.unit_price)}`);
+    textLines.push(`   Total: ₹${formatNumber(item.line_total)}`);
     textLines.push(``);
   });
 
@@ -224,10 +224,10 @@ const generateQuotationEmail = async (quotationId) => {
     textLines.push(``);
   }
 
-  textLines.push(`Subtotal: $${formatNumber(quotation.subtotal)}`);
-  if (quotation.discount > 0) textLines.push(`Discount: -$${formatNumber(quotation.discount)}`);
-  textLines.push(`GST (18%): $${formatNumber(quotation.tax)}`);
-  textLines.push(`Grand Total: $${formatNumber(quotation.grand_total)}`);
+  textLines.push(`Subtotal: ₹${formatNumber(quotation.subtotal)}`);
+  if (quotation.discount > 0) textLines.push(`Discount: -₹${formatNumber(quotation.discount)}`);
+  textLines.push(`GST (18%): ₹${formatNumber(quotation.tax)}`);
+  textLines.push(`Grand Total: ₹${formatNumber(quotation.grand_total)}`);
   textLines.push(``);
   textLines.push(`Thank you for your enquiry.`);
   textLines.push(`${companyName}`);
@@ -244,7 +244,7 @@ const generateQuotationEmail = async (quotationId) => {
 
 function formatNumber(num) {
   if (!num && num !== 0) return '0';
-  return parseFloat(num).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  return parseFloat(num).toLocaleString('en-IN', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
 }
 
 module.exports = {

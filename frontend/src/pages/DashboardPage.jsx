@@ -86,7 +86,7 @@ const DashboardPage = () => {
                             </div>
                             <div className="glass-card card-body">
                                 <div style={{ fontSize: '13px', color: 'var(--text-secondary)', textTransform: 'uppercase', fontWeight: 600 }}>Total Value Generated</div>
-                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: 'var(--accent-primary)' }}>${quotationMetrics.totalValue.toLocaleString('en-US')}</div>
+                                <div style={{ fontSize: '32px', fontWeight: 800, marginTop: '8px', color: 'var(--accent-primary)' }}>₹{quotationMetrics.totalValue.toLocaleString('en-IN')}</div>
                             </div>
                         </div>
                     )}

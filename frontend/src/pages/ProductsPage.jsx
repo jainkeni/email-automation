@@ -207,7 +207,7 @@ const ProductsPage = () => {
                                                 {product.size && <span className="badge badge-info">{product.size}</span>}
                                                 {product.material && <span className="badge badge-warning" style={{ marginLeft: '4px' }}>{product.material}</span>}
                                             </td>
-                                            <td style={{ fontWeight: '600' }}>${product.base_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
+                                            <td style={{ fontWeight: '600' }}>₹{product.base_price.toLocaleString('en-IN', { minimumFractionDigits: 2 })}</td>
                                             <td>
                                                 <span className={`badge ${product.active ? 'badge-success' : 'badge-error'}`}>
                                                     {product.active ? 'Active' : 'Inactive'}
