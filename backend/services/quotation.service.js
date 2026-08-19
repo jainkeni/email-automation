@@ -230,8 +230,9 @@ const processQuotationInquiry = async (emailId) => {
         if (productId && matchResult.confidence < 0.70) itemStatus = 'NEEDS_REVIEW';
         if (!customer) itemStatus = 'NEEDS_REVIEW';
 
-        // If product was completely unmatched, we flag it as UNAVAILABLE so it doesn't block the quote.
-        if (!productId) itemStatus = 'UNAVAILABLE';
+        // If product was completely unmatched, we must use a valid DB status.
+        // We use NEEDS_REVIEW. The frontend logic treats product_id == null as "Unavailable" automatically.
+        if (!productId) itemStatus = 'NEEDS_REVIEW';
 
         if (itemStatus === 'NEEDS_REVIEW') hasNeedsReview = true;
 

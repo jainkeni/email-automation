@@ -50,21 +50,6 @@ app.post('/api/fetch-emails', async (req, res) => {
     }
 });
 
-// Vercel Cron Job endpoint
-app.get('/api/cron/fetch-emails', async (req, res) => {
-    // Vercel automatically sends the CRON_SECRET header to ensure it's triggered legitimately
-    if (process.env.CRON_SECRET && req.headers.authorization !== `Bearer ${process.env.CRON_SECRET}`) {
-        return res.status(401).json({ message: 'Unauthorized cron trigger' });
-    }
-    try {
-        await fetchNewEmails();
-        res.json({ message: 'Email fetch cron executed successfully.' });
-    } catch (error) {
-        res.status(500).json({ message: 'Cron failed.', error: error.message });
-    }
-});
-
-
 // Initialize and start
 const startServer = async () => {
     try {
@@ -107,13 +92,4 @@ const startServer = async () => {
     }
 };
 
-// Check if we are running in Vercel Serverless environment
-if (process.env.VERCEL) {
-    // In Vercel, we export the Express app directly without starting the HTTP server loop
-    initSupabase();
-    initializeTransporter(); // Optional in edge depending if credentials exist
-    module.exports = app;
-} else {
-    // In local development or traditional hosting (like Render), start the long-running server
-    startServer();
-}
+startServer();
