@@ -211,10 +211,7 @@ router.put('/:id/approve', async (req, res) => {
         });
     } catch (error) {
         console.error('Error approving request:', error);
-        res.status(500).json({
-            message: 'Failed to approve request and send reply.',
-            error: error.message
-        });
+        res.status(500).json({ message: 'Failed to approve request and send reply.' });
     }
 });
 

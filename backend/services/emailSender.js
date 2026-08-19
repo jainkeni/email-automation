@@ -16,11 +16,6 @@ const initializeTransporter = () => {
         },
     });
 
-    if (!process.env.SMTP_USER || !process.env.SMTP_PASSWORD) {
-        console.warn('⚠️ SMTP_USER or SMTP_PASSWORD is not set. Sending emails will fail.');
-    }
-
-
     console.log('✅ SMTP Transporter initialized');
     return transporter;
 };
