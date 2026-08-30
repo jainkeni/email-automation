@@ -39,18 +39,18 @@ const generateQuotationPDF = (quotation, items, customer, companyName) => {
                 const qty = item.quantity || 0;
                 const unitPrice = parseFloat(item.unit_price).toFixed(2);
                 const lineTotal = parseFloat(item.line_total).toFixed(2);
-                doc.fontSize(10).text(`    Qty: ${qty} | Unit Price: INR ${unitPrice}  --> Total: INR ${lineTotal}`);
+                doc.fontSize(10).text(`    Qty: ${qty} | Unit Price: USD ${unitPrice}  --> Total: USD ${lineTotal}`);
                 doc.moveDown(0.5);
             });
             doc.moveDown();
 
             // Totals
-            doc.fontSize(12).text(`Subtotal: INR ${parseFloat(quotation.subtotal).toFixed(2)}`, { align: 'right' });
+            doc.fontSize(12).text(`Subtotal: USD ${parseFloat(quotation.subtotal).toFixed(2)}`, { align: 'right' });
             if (quotation.discount > 0) {
-                doc.text(`Discount: -INR ${parseFloat(quotation.discount).toFixed(2)}`, { align: 'right' });
+                doc.text(`Discount: -USD ${parseFloat(quotation.discount).toFixed(2)}`, { align: 'right' });
             }
-            doc.text(`GST (18%): INR ${parseFloat(quotation.tax).toFixed(2)}`, { align: 'right' });
-            doc.fontSize(14).text(`Grand Total: INR ${parseFloat(quotation.grand_total).toFixed(2)}`, { align: 'right', underline: true });
+            doc.text(`GST (18%): USD ${parseFloat(quotation.tax).toFixed(2)}`, { align: 'right' });
+            doc.fontSize(14).text(`Grand Total: USD ${parseFloat(quotation.grand_total).toFixed(2)}`, { align: 'right', underline: true });
             doc.moveDown(2);
 
             // Unsold items notice

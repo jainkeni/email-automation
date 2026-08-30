@@ -14,8 +14,16 @@ const AiAnalysisCard = ({ analysis }) => {
     return (
         <div className="glass-card ai-analysis-card fade-in">
             <div className="card-header">
-                <span className="card-header-title">🤖 AI Analysis</span>
-                <span className="ai-badge">✨ AI Powered</span>
+                <span className="card-header-title">
+                    <svg viewBox="0 0 24 24"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" /></svg>
+                    AI Analysis
+                </span>
+                <span className="ai-badge">
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                        <path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" />
+                    </svg>
+                    AI Powered
+                </span>
             </div>
             <div className="card-body">
                 {/* Category & Urgency */}
@@ -24,9 +32,6 @@ const AiAnalysisCard = ({ analysis }) => {
                         {analysis.category || 'General Inquiry'}
                     </span>
                     <span className={`badge badge-urgency-${analysis.urgency || 'medium'}`}>
-                        {analysis.urgency === 'high' && '🔴 '}
-                        {analysis.urgency === 'medium' && '🟡 '}
-                        {analysis.urgency === 'low' && '🟢 '}
                         {(analysis.urgency || 'medium').charAt(0).toUpperCase() +
                             (analysis.urgency || 'medium').slice(1)} Priority
                     </span>

@@ -88,7 +88,7 @@ const RequestDetailPage = () => {
 
     const formatDate = (dateStr) => {
         if (!dateStr) return 'N/A';
-        return new Date(dateStr).toLocaleString('en-IN', {
+        return new Date(dateStr).toLocaleString('en-US', {
             day: 'numeric',
             month: 'short',
             year: 'numeric',
@@ -111,7 +111,10 @@ const RequestDetailPage = () => {
     return (
         <div className="fade-in">
             <button className="detail-back" onClick={() => navigate(-1)}>
-                ← Back to Requests
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                    <line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" />
+                </svg>
+                Back to Requests
             </button>
 
             <div className="page-header" style={{ marginBottom: '24px' }}>
@@ -129,7 +132,19 @@ const RequestDetailPage = () => {
                             onClick={handleGenerateQuotation}
                             disabled={isGeneratingQuotation}
                         >
-                            {isGeneratingQuotation ? 'Generating...' : '📄 Generate Quotation'}
+                            {isGeneratingQuotation ? (
+                                <>
+                                    <div className="spinner" style={{ width: '14px', height: '14px', borderWidth: '2px' }} />
+                                    Generating...
+                                </>
+                            ) : (
+                                <>
+                                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
+                                    </svg>
+                                    Generate Quotation
+                                </>
+                            )}
                         </button>
                     )}
                 </div>
@@ -141,7 +156,10 @@ const RequestDetailPage = () => {
                     {/* Original Email */}
                     <div className="glass-card" style={{ marginBottom: '24px' }}>
                         <div className="card-header">
-                            <span className="card-header-title">📧 Original Email</span>
+                            <span className="card-header-title">
+                                <svg viewBox="0 0 24 24"><rect x="2" y="4" width="20" height="16" rx="2" /><polyline points="22,6 12,13 2,6" /></svg>
+                                Original Email
+                            </span>
                             <span className="time-ago">{formatDate(request.receivedAt)}</span>
                         </div>
                         <div className="email-content-box">

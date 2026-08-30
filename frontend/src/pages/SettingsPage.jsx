@@ -97,7 +97,10 @@ const SettingsPage = () => {
                     {/* Company Info */}
                     <div className="glass-card">
                         <div className="card-header">
-                            <span className="card-header-title">🏢 Company Information</span>
+                            <span className="card-header-title">
+                                <svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                                Company Information
+                            </span>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -146,7 +149,10 @@ const SettingsPage = () => {
                     {/* Contact Info */}
                     <div className="glass-card">
                         <div className="card-header">
-                            <span className="card-header-title">📞 Contact Details</span>
+                            <span className="card-header-title">
+                                <svg viewBox="0 0 24 24"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z" /></svg>
+                                Contact Details
+                            </span>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -185,7 +191,10 @@ const SettingsPage = () => {
                     {/* Products & Services */}
                     <div className="glass-card">
                         <div className="card-header">
-                            <span className="card-header-title">📦 Products & Services</span>
+                            <span className="card-header-title">
+                                <svg viewBox="0 0 24 24"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" /><polyline points="3.27 6.96 12 12.01 20.73 6.96" /><line x1="12" y1="22.08" x2="12" y2="12" /></svg>
+                                Products & Services
+                            </span>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -194,7 +203,7 @@ const SettingsPage = () => {
                                     className="form-textarea"
                                     value={productsText}
                                     onChange={(e) => setProductsText(e.target.value)}
-                                    placeholder="Product A - Description&#10;Product B - Description&#10;Service C - Description"
+                                    placeholder={"Product A - Description\nProduct B - Description\nService C - Description"}
                                     rows={6}
                                 />
                             </div>
@@ -214,7 +223,10 @@ const SettingsPage = () => {
                     {/* Policies */}
                     <div className="glass-card">
                         <div className="card-header">
-                            <span className="card-header-title">📋 Business Policies</span>
+                            <span className="card-header-title">
+                                <svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" /><polyline points="10 9 9 9 8 9" /></svg>
+                                Business Policies
+                            </span>
                         </div>
                         <div className="card-body">
                             <div className="form-group">
@@ -274,7 +286,10 @@ const SettingsPage = () => {
                 {/* AI Tone & Notes */}
                 <div className="glass-card" style={{ marginTop: '24px' }}>
                     <div className="card-header">
-                        <span className="card-header-title">🤖 AI Response Configuration</span>
+                        <span className="card-header-title">
+                            <svg viewBox="0 0 24 24"><path d="M12 2L2 7l10 5 10-5-10-5z" /><path d="M2 17l10 5 10-5" /><path d="M2 12l10 5 10-5" /></svg>
+                            AI Response Configuration
+                        </span>
                     </div>
                     <div className="card-body">
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '24px' }}>
@@ -305,7 +320,19 @@ const SettingsPage = () => {
                 {/* Save Button */}
                 <div style={{ marginTop: '24px', display: 'flex', justifyContent: 'flex-end' }}>
                     <button type="submit" className="btn btn-primary btn-lg" disabled={saving}>
-                        {saving ? '⏳ Saving...' : '💾 Save Settings'}
+                        {saving ? (
+                            <>
+                                <div className="spinner" style={{ width: '16px', height: '16px', borderWidth: '2px' }} />
+                                Saving...
+                            </>
+                        ) : (
+                            <>
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                    <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z" /><polyline points="17 21 17 13 7 13 7 21" /><polyline points="7 3 7 8 15 8" />
+                                </svg>
+                                Save Settings
+                            </>
+                        )}
                     </button>
                 </div>
             </form>

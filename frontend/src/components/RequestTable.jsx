@@ -12,7 +12,7 @@ const formatTimeAgo = (dateStr) => {
     if (diffMins < 60) return `${diffMins}m ago`;
     if (diffHours < 24) return `${diffHours}h ago`;
     if (diffDays < 7) return `${diffDays}d ago`;
-    return date.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
+    return date.toLocaleDateString('en-US', { day: 'numeric', month: 'short' });
 };
 
 const RequestTable = ({ requests, loading }) => {
@@ -30,7 +30,13 @@ const RequestTable = ({ requests, loading }) => {
     if (!requests || requests.length === 0) {
         return (
             <div className="empty-state">
-                <div className="empty-state-icon">📭</div>
+                <div className="empty-state-icon">
+                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+                        <rect x="2" y="4" width="20" height="16" rx="2" /><polyline points="22,6 12,13 2,6" />
+                        <line x1="2" y1="20" x2="8" y2="14" />
+                        <line x1="22" y1="20" x2="16" y2="14" />
+                    </svg>
+                </div>
                 <div className="empty-state-text">No requests found</div>
                 <div className="empty-state-sub">
                     New customer emails will appear here automatically
@@ -55,52 +61,49 @@ const RequestTable = ({ requests, loading }) => {
                 <tbody>
                     {requests.map((req, index) => (
                         <tr
-                            key={req._id}
+                            key={req.id || req._id || index}
                             className="stagger-item"
                             style={{ animationDelay: `${index * 0.05}s` }}
-                            onClick={() => navigate(`/requests/${req._id}`)}
+                            onClick={() => navigate(`/requests/${req.id || req._id}`)}
                         >
                             <td>
                                 <div className="request-sender">
                                     <span className="request-sender-name">
-                                        {req.aiAnalysis?.customerName !== 'Not specified'
-                                            ? req.aiAnalysis.customerName
-                                            : req.fromName || req.from.split('@')[0]}
+                                        {req.ai_analysis?.customerName !== 'Not specified' && req.ai_analysis?.customerName
+                                            ? req.ai_analysis.customerName
+                                            : req.from_name || req.fromName || (req.from_email || req.from)?.split('@')[0]}
                                     </span>
                                     <span className="request-sender-email">
-                                        {req.aiAnalysis?.company !== 'Not specified'
-                                            ? req.aiAnalysis.company
-                                            : req.from}
+                                        {req.ai_analysis?.company !== 'Not specified' && req.ai_analysis?.company
+                                            ? req.ai_analysis.company
+                                            : req.from_email || req.from}
                                     </span>
                                 </div>
                             </td>
                             <td>
                                 <div className="request-subject">{req.subject}</div>
                                 <div className="request-summary">
-                                    {req.aiAnalysis?.summary?.substring(0, 80) || ''}
+                                    {req.ai_analysis?.summary?.substring(0, 80) || req.aiAnalysis?.summary?.substring(0, 80) || ''}
                                 </div>
                             </td>
                             <td>
                                 <span className="badge badge-category">
-                                    {req.aiAnalysis?.category || 'General'}
+                                    {req.ai_analysis?.category || req.aiAnalysis?.category || 'General'}
                                 </span>
                             </td>
                             <td>
-                                <span className={`badge badge-urgency-${req.aiAnalysis?.urgency || 'medium'}`}>
-                                    {req.aiAnalysis?.urgency === 'high' && '🔴 '}
-                                    {req.aiAnalysis?.urgency === 'medium' && '🟡 '}
-                                    {req.aiAnalysis?.urgency === 'low' && '🟢 '}
-                                    {(req.aiAnalysis?.urgency || 'medium').charAt(0).toUpperCase() +
-                                        (req.aiAnalysis?.urgency || 'medium').slice(1)}
+                                <span className={`badge badge-urgency-${req.ai_analysis?.urgency || req.aiAnalysis?.urgency || 'medium'}`}>
+                                    {(req.ai_analysis?.urgency || req.aiAnalysis?.urgency || 'medium').charAt(0).toUpperCase() +
+                                        (req.ai_analysis?.urgency || req.aiAnalysis?.urgency || 'medium').slice(1)}
                                 </span>
                             </td>
                             <td>
                                 <span className={`badge badge-${req.status}`}>
-                                    {req.status.charAt(0).toUpperCase() + req.status.slice(1)}
+                                    {req.status ? req.status.charAt(0).toUpperCase() + req.status.slice(1).toLowerCase() : 'Pending'}
                                 </span>
                             </td>
                             <td>
-                                <span className="time-ago">{formatTimeAgo(req.receivedAt || req.createdAt)}</span>
+                                <span className="time-ago">{formatTimeAgo(req.received_at || req.receivedAt || req.created_at || req.createdAt)}</span>
                             </td>
                         </tr>
                     ))}

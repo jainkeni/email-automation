@@ -39,7 +39,7 @@ const getCustomerPrice = async (customerId, productId) => {
                 productId,
                 customerId,
                 unitPrice: parseFloat(customerPrice.unit_price),
-                currency: 'INR',
+                currency: 'USD',
                 source: 'CUSTOMER_SPECIFIC',
             };
         }
@@ -58,7 +58,7 @@ const getCustomerPrice = async (customerId, productId) => {
             productId,
             customerId,
             unitPrice: 0,
-            currency: 'INR',
+            currency: 'USD',
             source: 'NOT_FOUND',
         };
     }
@@ -67,7 +67,7 @@ const getCustomerPrice = async (customerId, productId) => {
         productId,
         customerId,
         unitPrice: parseFloat(product.base_price),
-        currency: 'INR',
+        currency: 'USD',
         source: 'BASE_PRICE',
     };
 };

@@ -1,48 +1,64 @@
-import React from 'react';
-
 const FormattedEmailBody = ({ body }) => {
-    if (!body) return null;
+    if (!body) return <p style={{ color: 'var(--text-tertiary)', fontStyle: 'italic' }}>No email body available.</p>;
 
+    // Split quoted text blocks
     const lines = body.split('\n');
+    const elements = [];
+    let currentBlock = [];
+    let isQuoted = false;
 
-    return (
-        <div className="email-body">
-            {lines.map((line, idx) => {
-                const trimmed = line.trim();
-                const isQuote = trimmed.startsWith('>');
+    const flushBlock = () => {
+        if (currentBlock.length === 0) return;
+        const text = currentBlock.join('\n');
+        if (isQuoted) {
+            elements.push(
+                <blockquote
+                    key={elements.length}
+                    style={{
+                        borderLeft: '3px solid var(--border-accent)',
+                        paddingLeft: '16px',
+                        margin: '12px 0',
+                        color: 'var(--text-tertiary)',
+                        fontSize: '13px',
+                        lineHeight: '1.7',
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                        background: 'var(--bg-glass)',
+                        borderRadius: '0 var(--radius-sm) var(--radius-sm) 0',
+                        padding: '12px 16px',
+                    }}
+                >
+                    {text}
+                </blockquote>
+            );
+        } else {
+            elements.push(
+                <div
+                    key={elements.length}
+                    className="email-body"
+                    style={{
+                        whiteSpace: 'pre-wrap',
+                        wordBreak: 'break-word',
+                    }}
+                >
+                    {text}
+                </div>
+            );
+        }
+        currentBlock = [];
+    };
 
-                if (isQuote) {
-                    const depthMatch = line.match(/^(>\s*)+/);
-                    const depth = depthMatch ? (depthMatch[0].match(/>/g) || []).length : 1;
+    for (const line of lines) {
+        const lineIsQuoted = line.startsWith('>');
+        if (lineIsQuoted !== isQuoted) {
+            flushBlock();
+            isQuoted = lineIsQuoted;
+        }
+        currentBlock.push(lineIsQuoted ? line.substring(1).trim() : line);
+    }
+    flushBlock();
 
-                    return (
-                        <div key={idx} style={{
-                            color: 'var(--text-tertiary)',
-                            borderLeft: `2px solid var(--border-primary)`,
-                            paddingLeft: '12px',
-                            marginLeft: `${(depth - 1) * 12}px`,
-                            paddingTop: '2px',
-                            paddingBottom: '2px',
-                            marginTop: '2px',
-                            marginBottom: '2px',
-                            fontStyle: 'italic',
-                            background: 'var(--bg-glass)',
-                            borderTopRightRadius: '4px',
-                            borderBottomRightRadius: '4px'
-                        }}>
-                            {line.replace(/^(>\s*)+/, '')}
-                        </div>
-                    );
-                }
-
-                return (
-                    <div key={idx} style={{ minHeight: '1.5em' }}>
-                        {line}
-                    </div>
-                );
-            })}
-        </div>
-    );
+    return <div>{elements}</div>;
 };
 
 export default FormattedEmailBody;

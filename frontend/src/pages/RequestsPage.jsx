@@ -29,12 +29,11 @@ const RequestsPage = () => {
 
             const newRequests = res.data.requests;
 
-            // Only fire toast if we are on page 1 and no active search
             if (filters.page === 1 && !filters.search && newRequests.length > 0) {
                 const latestNewId = newRequests[0].id;
                 if (lastLatestId.current && lastLatestId.current !== latestNewId) {
                     toast.success(
-                        `📧 New email from ${newRequests[0].from_name || newRequests[0].from_email}\n"${newRequests[0].subject}"`,
+                        `New email from ${newRequests[0].from_name || newRequests[0].from_email}\n"${newRequests[0].subject}"`,
                         { duration: 5000, id: 'sys-new-email-req' }
                     );
                 }
@@ -84,7 +83,11 @@ const RequestsPage = () => {
             {/* Filter Bar */}
             <div className="filter-bar">
                 <div className="search-wrapper">
-                    <span className="search-icon">🔍</span>
+                    <span className="search-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </span>
                     <input
                         type="text"
                         className="search-input"

@@ -1,110 +1,144 @@
-import React, { useState, useEffect } from 'react';
-import toast from 'react-hot-toast';
+import { useState, useEffect } from 'react';
 import { customersAPI } from '../services/api';
 
 const CustomersPage = () => {
     const [customers, setCustomers] = useState([]);
     const [loading, setLoading] = useState(true);
-    const [searchTerm, setSearchTerm] = useState('');
-    const [pagination, setPagination] = useState({ page: 1, limit: 20, total: 0 });
+    const [search, setSearch] = useState('');
+    const [page, setPage] = useState(1);
+    const [pagination, setPagination] = useState({});
 
     useEffect(() => {
         fetchCustomers();
-    }, [pagination.page, searchTerm]);
+    }, [search, page]);
 
     const fetchCustomers = async () => {
+        setLoading(true);
         try {
-            setLoading(true);
-            const { data } = await customersAPI.getAll({
-                page: pagination.page,
-                search: searchTerm
-            });
-            setCustomers(data.customers);
-            setPagination(data.pagination);
+            const params = { page, limit: 20 };
+            if (search) params.search = search;
+            const res = await customersAPI.getAll(params);
+            setCustomers(res.data.customers || res.data);
+            setPagination(res.data.pagination || {});
         } catch (error) {
-            toast.error('Failed to fetch customers');
+            console.error('Failed to fetch customers:', error);
         } finally {
             setLoading(false);
         }
     };
 
-    const handleSearch = (e) => {
-        setSearchTerm(e.target.value);
-        setPagination({ ...pagination, page: 1 });
+    let searchTimeout;
+    const handleSearchChange = (e) => {
+        clearTimeout(searchTimeout);
+        const value = e.target.value;
+        searchTimeout = setTimeout(() => {
+            setSearch(value);
+            setPage(1);
+        }, 400);
+    };
+
+    const getInitials = (name) => {
+        if (!name) return '?';
+        return name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
     };
 
     return (
-        <div className="page-container">
-            <header className="page-header">
-                <div>
-                    <h1 className="page-title">Customers</h1>
-                    <p className="page-subtitle">Manage customer directory and purchase history</p>
-                </div>
-            </header>
-
-            <div className="card card-body" style={{ marginBottom: 'var(--spacing-lg)' }}>
-                <input
-                    type="text"
-                    placeholder="Search by company name, contact, or email..."
-                    className="form-input"
-                    value={searchTerm}
-                    onChange={handleSearch}
-                    style={{ maxWidth: '400px' }}
-                />
+        <div className="fade-in">
+            <div className="page-header">
+                <h1 className="page-title">Customers</h1>
+                <p className="page-subtitle">Customer directory auto-populated from email requests</p>
             </div>
 
-            <div className="card">
+            <div className="filter-bar">
+                <div className="search-wrapper">
+                    <span className="search-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                            <circle cx="11" cy="11" r="8" /><line x1="21" y1="21" x2="16.65" y2="16.65" />
+                        </svg>
+                    </span>
+                    <input
+                        type="text"
+                        className="search-input"
+                        placeholder="Search by name, email, or company..."
+                        onChange={handleSearchChange}
+                    />
+                </div>
+            </div>
+
+            <div className="glass-card">
                 {loading ? (
-                    <div style={{ padding: 'var(--spacing-xl)', textAlign: 'center' }}>Loading customers...</div>
+                    <div className="loading-spinner">
+                        <div className="spinner" />
+                        <span className="loading-text">Loading customers...</span>
+                    </div>
+                ) : customers.length === 0 ? (
+                    <div className="empty-state">
+                        <div className="empty-state-icon">
+                            <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" style={{ opacity: 0.4 }}>
+                                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" /><circle cx="9" cy="7" r="4" />
+                                <path d="M23 21v-2a4 4 0 0 0-3-3.87" /><path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                            </svg>
+                        </div>
+                        <div className="empty-state-text">No customers found</div>
+                        <div className="empty-state-sub">Customers are added automatically from incoming emails</div>
+                    </div>
                 ) : (
                     <>
-                        <table className="table">
-                            <thead>
-                                <tr>
-                                    <th>Company Name</th>
-                                    <th>Contact Name</th>
-                                    <th>Email</th>
-                                    <th>Phone</th>
-                                    <th>Status</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                {customers.length === 0 ? (
+                        <div style={{ overflowX: 'auto' }}>
+                            <table className="table">
+                                <thead>
                                     <tr>
-                                        <td colSpan="5" style={{ textAlign: 'center', padding: 'var(--spacing-xl)' }}>
-                                            No customers found.
-                                        </td>
+                                        <th>Customer</th>
+                                        <th>Company</th>
+                                        <th>Phone</th>
+                                        <th>Inquiries</th>
+                                        <th>Last Contact</th>
                                     </tr>
-                                ) : (
-                                    customers.map(customer => (
-                                        <tr key={customer.id}>
-                                            <td style={{ fontWeight: '500' }}>{customer.company_name}</td>
-                                            <td>{customer.contact_name || '—'}</td>
-                                            <td><a href={`mailto:${customer.email}`}>{customer.email}</a></td>
-                                            <td>{customer.phone || '—'}</td>
+                                </thead>
+                                <tbody>
+                                    {customers.map((c, index) => (
+                                        <tr key={c._id || c.id || index} style={{ animationDelay: `${index * 0.04}s`, cursor: 'default' }}>
                                             <td>
-                                                <span className={`status-badge status-${customer.status}`}>
-                                                    {customer.status.toUpperCase()}
+                                                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                                                    <div className="sidebar-avatar" style={{ width: '34px', height: '34px', fontSize: '11px', borderRadius: 'var(--radius-sm)' }}>
+                                                        {getInitials(c.contact_name || c.company_name)}
+                                                    </div>
+                                                    <div className="request-sender">
+                                                        <span className="request-sender-name">{c.contact_name || c.company_name || 'Unknown'}</span>
+                                                        <span className="request-sender-email">{c.email || ''}</span>
+                                                    </div>
+                                                </div>
+                                            </td>
+                                            <td style={{ fontWeight: 500 }}>
+                                                {c.company_name || '—'}
+                                            </td>
+                                            <td>
+                                                {c.phone ? (
+                                                    <span style={{ fontSize: '13px' }}>{c.phone}</span>
+                                                ) : '—'}
+                                            </td>
+                                            <td style={{ fontFamily: 'Inter, sans-serif', fontWeight: 600 }}>
+                                                {c.request_count || c.total_requests || 0}
+                                            </td>
+                                            <td>
+                                                <span className="time-ago">
+                                                    {c.last_contact_at || c.updated_at ? new Date(c.last_contact_at || c.updated_at).toLocaleDateString('en-US', {
+                                                        year: 'numeric', month: 'short', day: 'numeric'
+                                                    }) : '—'}
                                                 </span>
                                             </td>
                                         </tr>
-                                    ))
-                                )}
-                            </tbody>
-                        </table>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: 'var(--spacing-lg)' }}>
-                            <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>
-                                Showing {customers.length} of {pagination.total} customers
-                            </span>
-                            <div style={{ display: 'flex', gap: 'var(--spacing-sm)' }}>
-                                <button className="pagination-btn" disabled={pagination.page === 1} onClick={() => setPagination({ ...pagination, page: pagination.page - 1 })}>
-                                    Previous
-                                </button>
-                                <button className="pagination-btn" disabled={pagination.page === pagination.pages} onClick={() => setPagination({ ...pagination, page: pagination.page + 1 })}>
-                                    Next
-                                </button>
-                            </div>
+                                    ))}
+                                </tbody>
+                            </table>
                         </div>
+                        {pagination.pages > 1 && (
+                            <div className="pagination">
+                                <button className="pagination-btn" disabled={page <= 1} onClick={() => setPage(p => p - 1)}>← Previous</button>
+                                <span className="pagination-info">Page {pagination.page} of {pagination.pages}</span>
+                                <button className="pagination-btn" disabled={page >= pagination.pages} onClick={() => setPage(p => p + 1)}>Next →</button>
+                            </div>
+                        )}
                     </>
                 )}
             </div>

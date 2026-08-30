@@ -33,8 +33,9 @@ const ProtectedRoute = ({ children }) => {
   return children;
 };
 
-const AppLayout = () => {
+const AppLayout = ({ theme, setTheme }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(false);
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -56,15 +57,24 @@ const AppLayout = () => {
       <button
         className="mobile-menu-btn"
         onClick={() => setSidebarOpen(true)}
+        aria-label="Open menu"
       >
-        ☰
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <line x1="3" y1="12" x2="21" y2="12" />
+          <line x1="3" y1="6" x2="21" y2="6" />
+          <line x1="3" y1="18" x2="21" y2="18" />
+        </svg>
       </button>
       <Sidebar
         pendingCount={pendingCount}
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
+        isCollapsed={isCollapsed}
+        setIsCollapsed={setIsCollapsed}
+        theme={theme}
+        setTheme={setTheme}
       />
-      <main className="main-content">
+      <main className={`main-content ${isCollapsed ? 'collapsed' : ''}`}>
         <Routes>
           <Route path="/" element={<DashboardPage />} />
           <Route path="/requests" element={<RequestsPage />} />
@@ -82,6 +92,13 @@ const AppLayout = () => {
 };
 
 const App = () => {
+  const [theme, setTheme] = useState(localStorage.getItem('theme') || 'dark');
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme);
+    localStorage.setItem('theme', theme);
+  }, [theme]);
+
   return (
     <AuthProvider>
       <Router>
@@ -90,27 +107,30 @@ const App = () => {
           toastOptions={{
             duration: 3000,
             style: {
-              background: '#1f2937',
-              color: '#f1f5f9',
+              background: '#141c2e',
+              color: '#f0f4f8',
               border: '1px solid rgba(255,255,255,0.06)',
-              borderRadius: '10px',
-              fontSize: '14px',
+              borderRadius: '12px',
+              fontSize: '13.5px',
+              fontFamily: 'Inter, sans-serif',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+              backdropFilter: 'blur(16px)',
             },
             success: {
-              iconTheme: { primary: '#10b981', secondary: '#fff' },
+              iconTheme: { primary: '#34d399', secondary: '#fff' },
             },
             error: {
-              iconTheme: { primary: '#ef4444', secondary: '#fff' },
+              iconTheme: { primary: '#f87171', secondary: '#fff' },
             },
           }}
         />
         <Routes>
-          <Route path="/login" element={<LoginRedirect />} />
+          <Route path="/login" element={<LoginRedirect theme={theme} setTheme={setTheme} />} />
           <Route
             path="/*"
             element={
               <ProtectedRoute>
-                <AppLayout />
+                <AppLayout theme={theme} setTheme={setTheme} />
               </ProtectedRoute>
             }
           />
@@ -120,7 +140,7 @@ const App = () => {
   );
 };
 
-const LoginRedirect = () => {
+const LoginRedirect = ({ theme, setTheme }) => {
   const { admin, loading } = useAuth();
   if (loading) {
     return (
@@ -130,7 +150,7 @@ const LoginRedirect = () => {
     );
   }
   if (admin) return <Navigate to="/" replace />;
-  return <LoginPage />;
+  return <LoginPage theme={theme} setTheme={setTheme} />;
 };
 
 export default App;
