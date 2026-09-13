@@ -1,7 +1,6 @@
 const { ImapFlow } = require('imapflow');
 const { getSupabase } = require('../config/db');
 const { analyzeEmail, generateDraftReply, shouldProcessEmail } = require('./aiService');
-const { processQuotationInquiry } = require('./quotation.service');
 
 
 /**
@@ -125,18 +124,8 @@ const fetchNewEmails = async () => {
 
                     newCount++;
                     console.log(`✅ Saved & analyzed: ${envelope.subject}`);
-
-                    // ── AUTOMATED QUOTATION GENERATION ───────────────────────
-                    if (['Pricing Request', 'Product Inquiry', 'Custom Order'].includes(aiAnalysis.category)) {
-                        console.log(`🤖 Auto-generating quotation for ${aiAnalysis.category}...`);
-                        try {
-                            const qtResult = await processQuotationInquiry(savedEmail.id);
-                            console.log(`✅ Automated Quotation Created: ${qtResult.quotation?.quotation_number}`);
-                        } catch (qtError) {
-                            console.error(`❌ Failed to auto-generate quotation: ${qtError.message}`);
-                        }
-                    }
-                    // ─────────────────────────────────────────────────────────
+                    // Quotation is NOT auto-generated here.
+                    // Workflow: Admin sends initial reply → Customer confirms → Admin creates quotation.
 
                     await client.messageFlagsAdd({ uid: msg.uid }, ['\\Seen']);
                 } catch (msgError) {

@@ -15,6 +15,7 @@ const RequestDetailPage = () => {
     const [isRejecting, setIsRejecting] = useState(false);
     const [isRegenerating, setIsRegenerating] = useState(false);
     const [isGeneratingQuotation, setIsGeneratingQuotation] = useState(false);
+    const [quotationId, setQuotationId] = useState(null); // set after quotation is created
 
     useEffect(() => {
         fetchRequest();
@@ -77,10 +78,17 @@ const RequestDetailPage = () => {
         setIsGeneratingQuotation(true);
         try {
             const res = await quotationsAPI.analyze(id);
-            toast.success('Quotation draft generated successfully!');
-            navigate(`/quotations/${res.data.quotation.id}`);
+            const newQuotationId = res.data.quotation.id;
+            setQuotationId(newQuotationId);
+            toast.success('Quotation draft created! Redirecting...');
+            setTimeout(() => navigate(`/quotations/${newQuotationId}`), 1200);
         } catch (error) {
-            toast.error(error.response?.data?.message || 'Failed to generate quotation');
+            const msg = error.response?.data?.message || 'Failed to generate quotation';
+            if (error.response?.status === 409) {
+                toast.error('A quotation already exists for this request.');
+            } else {
+                toast.error(msg);
+            }
         } finally {
             setIsGeneratingQuotation(false);
         }
@@ -123,9 +131,9 @@ const RequestDetailPage = () => {
                         {request.subject}
                     </h1>
                     <span className={`badge badge-${request.status}`}>
-                        {request.status.charAt(0).toUpperCase() + request.status.slice(1)}
+                        {request.status === 'approved' ? 'Reply Sent' : request.status.charAt(0).toUpperCase() + request.status.slice(1)}
                     </span>
-                    {request.status === 'pending' && (
+                    {request.status === 'approved' && !quotationId && (
                         <button
                             className="btn btn-primary"
                             style={{ marginLeft: 'auto' }}
@@ -135,19 +143,65 @@ const RequestDetailPage = () => {
                             {isGeneratingQuotation ? (
                                 <>
                                     <div className="spinner" style={{ width: '14px', height: '14px', borderWidth: '2px' }} />
-                                    Generating...
+                                    Creating Quotation...
                                 </>
                             ) : (
                                 <>
                                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" /><line x1="16" y1="13" x2="8" y2="13" /><line x1="16" y1="17" x2="8" y2="17" />
                                     </svg>
-                                    Generate Quotation
+                                    Customer Confirmed — Create Quotation
                                 </>
                             )}
                         </button>
                     )}
+                    {request.status === 'approved' && quotationId && (
+                        <button
+                            className="btn btn-ghost"
+                            style={{ marginLeft: 'auto' }}
+                            onClick={() => navigate(`/quotations/${quotationId}`)}
+                        >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" /><polyline points="14 2 14 8 20 8" />
+                            </svg>
+                            View Quotation
+                        </button>
+                    )}
                 </div>
+                {request.status === 'approved' && !quotationId && (
+                    <div style={{
+                        marginTop: '12px',
+                        padding: '10px 16px',
+                        borderRadius: '8px',
+                        background: 'rgba(59,130,246,0.08)',
+                        border: '1px solid rgba(59,130,246,0.25)',
+                        color: 'var(--text-secondary)',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                    }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#3b82f6" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><line x1="12" y1="8" x2="12" y2="12" /><line x1="12" y1="16" x2="12.01" y2="16" /></svg>
+                        Initial reply sent to customer. Once the customer confirms their requirement, click <strong style={{ color: 'var(--text-primary)', margin: '0 4px' }}>Customer Confirmed — Create Quotation</strong> to generate the formal quotation.
+                    </div>
+                )}
+                {request.status === 'approved' && quotationId && (
+                    <div style={{
+                        marginTop: '12px',
+                        padding: '10px 16px',
+                        borderRadius: '8px',
+                        background: 'rgba(34,197,94,0.08)',
+                        border: '1px solid rgba(34,197,94,0.25)',
+                        color: 'var(--text-secondary)',
+                        fontSize: '13px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                    }}>
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12" /></svg>
+                        Quotation created successfully. Review and approve it before sending to the customer.
+                    </div>
+                )}
             </div>
 
             <div className="detail-layout">

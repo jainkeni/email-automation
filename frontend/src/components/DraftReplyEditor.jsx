@@ -45,7 +45,7 @@ const DraftReplyEditor = ({
         );
         if (status === 'approved') return (
             <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" /><polyline points="22 4 12 14.01 9 11.01" />
+                <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
             </svg>
         );
         return (
@@ -60,7 +60,7 @@ const DraftReplyEditor = ({
             <div className="card-header">
                 <span className="card-header-title">
                     {getStatusIcon()}
-                    {isPending ? 'Draft Reply' : status === 'approved' ? 'Sent Reply' : 'Rejected'}
+                    {isPending ? 'Draft Reply' : status === 'approved' ? 'Initial Reply Sent' : 'Rejected'}
                 </span>
                 {isPending && (
                     <button
@@ -124,7 +124,7 @@ const DraftReplyEditor = ({
                                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                             <line x1="22" y1="2" x2="11" y2="13" /><polygon points="22 2 15 22 11 13 2 9 22 2" />
                                         </svg>
-                                        Approve & Send
+                                        Approve & Send Reply
                                     </>
                                 )}
                             </button>
@@ -157,7 +157,7 @@ const DraftReplyEditor = ({
                 ) : (
                     <div className="email-body" style={{ whiteSpace: 'pre-wrap' }}>
                         {status === 'approved'
-                            ? replyText || draftReply
+                            ? (replyText || draftReply)
                             : `This request was rejected.${rejectReason ? `\nReason: ${rejectReason}` : ''}`}
                     </div>
                 )}
